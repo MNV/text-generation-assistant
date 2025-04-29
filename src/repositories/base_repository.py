@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Type, Union, Sequence
 
 from pydantic.main import BaseModel
-from sqlalchemy import Column, insert, update, RowMapping
+from sqlalchemy import Column, insert, update, delete, RowMapping
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import CursorResult, Result, Row
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -111,7 +113,7 @@ class BaseRepository(ABC):
         values = (
             model
             if isinstance(model, dict)
-            else model.dict(exclude={"id"}, exclude_none=True)
+            else model.model_dump(exclude={"id"}, exclude_none=True)
         )
         cursor: Result = await self.session.execute(
             insert(self.model).values(**values).returning(self.get_attr("id"))
@@ -130,6 +132,8 @@ class BaseRepository(ABC):
         :return:
         """
 
+        kwargs["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+
         statement = (
             update(self.model)
             .where(self.get_attr("id") == primary_key)
@@ -139,6 +143,28 @@ class BaseRepository(ABC):
         result: CursorResult = await self.session.execute(statement)  # type: ignore
 
         return result.rowcount if result else None
+
+    async def upsert_model(
+        self, model: Union[dict, BaseModel], conflict_fields: list[str]
+    ) -> Optional[int]:
+        values = (
+            model
+            if isinstance(model, dict)
+            else model.model_dump(exclude={"id"}, exclude_none=True)
+        )
+
+        insert_stmt = pg_insert(self.model).values(**values)
+        update_dict = {k: v for k, v in values.items() if k not in conflict_fields}
+
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=conflict_fields,
+            set_=update_dict,
+        ).returning(self.get_attr("id"))
+
+        result = await self.session.execute(upsert_stmt)
+        row = result.fetchone()
+
+        return row.id if row else None
 
     async def delete_by(self, **kwargs: Any) -> None:
         """
@@ -158,3 +184,24 @@ class BaseRepository(ABC):
         except NoResultFound:
 
             return None
+
+    async def delete_all_by(self, **kwargs: Any) -> int:
+        """
+        Delete multiple records that match the given filter conditions.
+
+        :param kwargs: filter conditions (e.g., resume_id=...)
+        :return: number of deleted rows
+        """
+
+        condition = None
+        for attr, value in kwargs.items():
+            expression = self.get_attr(attr) == value
+            condition = expression if condition is None else condition & expression
+
+        if condition is not None:
+            statement = delete(self.model).where(condition)
+            result = await self.session.execute(statement)
+
+            return result.rowcount or 0
+
+        return 0

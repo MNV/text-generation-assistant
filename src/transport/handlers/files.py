@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from baml_client.types import Resume
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from fastapi import status
 from fastapi.openapi.models import Tag
@@ -11,6 +10,7 @@ from schemas.files import FileUploadResponse
 from services.ner_service import NERService
 from services.resume_parser_service import ResumeParserService
 from services.resume_service import ResumeService
+from services.vector_store_service import VectorStoreService
 from settings import settings
 
 router = APIRouter()
@@ -48,7 +48,7 @@ async def upload_resume(
     status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
 
     return JSONResponse(
-        content=FileUploadResponse(file_id=file_id).dict(),
+        content=FileUploadResponse(file_id=file_id).model_dump(),
         status_code=status_code,
     )
 
@@ -67,6 +67,7 @@ async def parse_resume(
     resume_service: ResumeService = Depends(),
     resume_parser_service: ResumeParserService = Depends(),
     ner_service: NERService = Depends(),
+    vector_store_service: VectorStoreService = Depends(),
 ):
     file_path = await resume_service.get_file_path(file_id)
     if not file_path or not file_path.exists():
@@ -76,9 +77,31 @@ async def parse_resume(
 
     text = await resume_parser_service.parse_resume(file_path)
     facts = await resume_parser_service.extract_facts(text)
-    entities = await ner_service.extract_entities(text)
+
+    await ner_service.store_facts(file_id, facts)
+
+    await vector_store_service.refresh_document(
+        text=text, metadata={"resume_id": str(file_id), "type": "resume_text"}
+    )
+
+    entities = await ner_service.extract_entities(
+        file_id,
+        facts,
+        language="ru",
+    )
 
     return {
-        "facts": facts,
-        "entities": entities,
+        "entities": entities.entities,
+    }
+
+
+@router.get("/resume/{file_id}/context", response_model=dict)
+async def get_resume_context(
+    file_id: UUID5,
+    vector_store_service: VectorStoreService = Depends(),
+):
+    documents = await vector_store_service.get_documents(str(file_id))
+
+    return {
+        "chunks": [doc.page_content for doc in documents],
     }

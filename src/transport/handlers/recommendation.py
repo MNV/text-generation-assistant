@@ -1,84 +1,37 @@
-from fastapi import APIRouter, HTTPException, Depends
-from services.rag_service import RAGService
-from services.ner_service import NERService
-from services.entity_research_service import EntityResearchService
-from services.user_entity_service import UserEntityService
-from services.resume_parser_service import ResumeParserService
-from schemas.generation import RecommendationRequest, RecommendationResponse
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
+from pydantic import UUID5
+
+from schemas.recommendation import RecommendationRequest
+from services.recommendation_service import RecommendationService
+from services.resume_export_service import ResumeExportService
 
 router = APIRouter()
 
-# Dependency Injection
-rag_service = RAGService()
-ner_service = NERService()
-research_service = EntityResearchService()
-user_entity_service = UserEntityService()
-resume_parser_service = ResumeParserService()
+
+@router.post("")
+async def generate_recommendation(
+    request: RecommendationRequest,
+    recommendation_service: RecommendationService = Depends(),
+    resume_export_service: ResumeExportService = Depends(),
+):
+    file_id = str(request.personalities.grantee.resume.file_id)
+    letter_text = await recommendation_service.generate(request)
+    await resume_export_service.create_file(file_id, letter_text)
+
+    return {"text": letter_text, "file_id": file_id}
 
 
-@router.post("/api/v1/recommendations", response_model=RecommendationResponse)
-async def generate_recommendation(request: RecommendationRequest):
-    """Generate a recommendation letter using RAG and enriched context."""
-    # Extract input data
-    principal_resume_id = request.personalities.principal.resume.file_id
-    grantee_resume_id = request.personalities.grantee.resume.file_id
-    directives = request.recommendation.directives
-    circumstances = (
-        request.personalities.circumstances or "No specific circumstances provided."
-    )
-
-    # Validate file IDs
-    if not principal_resume_id or not grantee_resume_id:
-        raise HTTPException(
-            status_code=400, detail="Both resume file IDs are required."
+@router.get("/letter/{file_id}")
+async def get_recommendation(
+    file_id: UUID5,
+    resume_export_service: ResumeExportService = Depends(),
+):
+    if file_path := await resume_export_service.get_file_path(file_id):
+        return FileResponse(
+            file_path,
+            filename=file_path.name,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
 
-    # Parse and extract text from resumes
-    principal_text = await resume_parser_service.get_resume_text(principal_resume_id)
-    grantee_text = await resume_parser_service.get_resume_text(grantee_resume_id)
-
-    if not principal_text or not grantee_text:
-        raise HTTPException(
-            status_code=404, detail="Could not retrieve resume content."
-        )
-
-    # Extract and store entities for both principal and grantee
-    principal_entities = await ner_service.extract_entities(
-        principal_text, user_id="principal", language="en"
-    )
-    grantee_entities = await ner_service.extract_entities(
-        grantee_text, user_id="grantee", language="en"
-    )
-
-    # Store user-selected entities and trigger research for selected entities
-    await user_entity_service.save_user_selections(
-        "principal", principal_entities.dict()["entities"]
-    )
-    await user_entity_service.save_user_selections(
-        "grantee", grantee_entities.dict()["entities"]
-    )
-
-    # Research selected entities for both principal and grantee
-    await research_service.research_entities(
-        entities=[
-            entity["text"] for entity in principal_entities.dict()["entities"]["SKILL"]
-        ],
-        user_id="principal",
-    )
-    await research_service.research_entities(
-        entities=[
-            entity["text"] for entity in grantee_entities.dict()["entities"]["SKILL"]
-        ],
-        user_id="grantee",
-    )
-
-    # Generate recommendation letter using enriched context
-    result = rag_service.generate_recommendation(
-        query="Generate a recommendation letter.",
-        principal_id="principal",
-        grantee_id="grantee",
-        directives=directives,
-        circumstances=circumstances,
-    )
-
-    return RecommendationResponse(recommendation=result)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")

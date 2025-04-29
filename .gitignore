@@ -172,3 +172,4 @@ cython_debug/
 
 uploads/
 baml_client/
+data/

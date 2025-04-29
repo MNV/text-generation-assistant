@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List, Dict
 
 
 class Entity(BaseModel):
@@ -9,4 +8,4 @@ class Entity(BaseModel):
 
 
 class NERResult(BaseModel):
-    entities: Dict[str, List[Entity]]
+    entities: dict[str, list[Entity]]

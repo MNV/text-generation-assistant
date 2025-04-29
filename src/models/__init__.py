@@ -1,1 +1,1 @@
-from .ner import NEREntity  # noqa: F401
+from .ner import NEREntity, NEREntitySelection  # noqa: F401

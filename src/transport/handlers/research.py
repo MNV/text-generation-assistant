@@ -1,14 +1,16 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
+from pydantic import UUID5
+
 from services.entity_research_service import EntityResearchService
 
 router = APIRouter()
-research_service = EntityResearchService()
 
 
-@router.post("/research/entities")
-async def research_entities(user_id: str, entities: list[str]):
-    """Research selected entities using Perplexity API."""
-    if not entities:
-        raise HTTPException(status_code=400, detail="Entity list cannot be empty.")
-    researched_content = await research_service.research_entities(entities, user_id)
-    return {"status": "success", "data": researched_content}
+@router.post("/resume/{resume_id}")
+async def research_entities(
+    resume_id: UUID5,
+    research_service: EntityResearchService = Depends(),
+):
+    """Research selected entities."""
+
+    return {"data": await research_service.research_entities(resume_id=resume_id)}

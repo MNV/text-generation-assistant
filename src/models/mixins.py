@@ -2,21 +2,19 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlmodel import Column, DateTime, Field
+from sqlmodel import Field
+
+
+def utc_now_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class TimeStampMixin(BaseModel):
     created_at: Optional[datetime] = Field(
-        sa_column=Column(
-            DateTime,
-            default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
-            nullable=False,
-        ),
+        default_factory=utc_now_naive,
+        nullable=False,
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(
-            DateTime,
-            default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
-            onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
-        ),
+        default_factory=utc_now_naive,
+        nullable=True,
     )
