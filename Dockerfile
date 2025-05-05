@@ -19,9 +19,6 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-interaction --no-ansi
 
-RUN poetry run python -m spacy download en_core_web_sm
-RUN poetry run python -m spacy download ru_core_news_lg
-
 ADD ./src /src
 WORKDIR /src
 

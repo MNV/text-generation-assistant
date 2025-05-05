@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 from baml_client.async_client import b
 from fastapi import Depends
@@ -9,6 +10,9 @@ from repositories.ner_repository import NERRepository
 from repositories.user_entity_research_repository import NEREntityResearchRepository
 from schemas.recommendation import RecommendationRequest
 from services.vector_store_service import VectorStoreService
+
+
+FEW_SHOT_EXAMPLES_DIR = Path("./data/few_shot_letters/enrollment")
 
 
 class RecommendationService:
@@ -62,6 +66,7 @@ class RecommendationService:
             query="Key achievements, skills, and potential for recommendation.",
             resume_id=str(grantee_resume_id),
         )
+        few_shot_examples = await self.load_few_shot_examples()
 
         return await b.GenerateRecommendationLetter(
             principal_facts=principal_facts,
@@ -72,5 +77,15 @@ class RecommendationService:
             directives=directives,
             circumstances=circumstances,
             entity_research=research_map,
+            few_shot_examples=few_shot_examples,
             extra={"current_date": datetime.today().strftime("%Y-%m-%d")},
         )
+
+    @staticmethod
+    async def load_few_shot_examples() -> str:
+        examples = []
+        for file_path in sorted(FEW_SHOT_EXAMPLES_DIR.glob("*.txt")):
+            with open(file_path, "r", encoding="utf-8") as f:
+                examples.append(f.read().strip())
+
+        return "\n\n---\n\n".join(examples)

@@ -8,11 +8,15 @@ function GenerateRecommendationLetter(
   directives: string,
   circumstances: string,
   entity_research: map<string, string>,
+  few_shot_examples: string,
   extra: map<string, string>,
 ) -> string {
   client "openai/gpt-4o"
   prompt #"
     You are a professional academic advisor writing a formal recommendation letter.
+
+    Below are example letters to help guide tone and style:
+    {{ few_shot_examples }}
 
     Task:
     Write a recommendation letter for the purpose of: {{ recommendation_type }}.
