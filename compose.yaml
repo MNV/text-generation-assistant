@@ -1,15 +1,15 @@
 services:
   text-generation-assistant-app:
-    build: .
+    build: ./backend
     container_name: text-generation-assistant-app
     command: uvicorn main:app --host 0.0.0.0 --port=8000 --reload
     ports:
       - "8010:8000"
     volumes:
-      - ./src:/src
+      - ./backend:/app
       - chroma_data:/src/data/chroma
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       text-generation-assistant-db:
         condition: service_healthy
@@ -19,17 +19,29 @@ services:
   text-generation-assistant-db:
     image: postgres:17-alpine
     container_name: text-generation-assistant-db
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - ./backend/.env
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB'"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - text-generation-assistant
+
+  text-generation-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: text-generation-frontend
+    ports:
+      - "8080:80"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - text-generation-assistant-app
     networks:
       - text-generation-assistant
 
