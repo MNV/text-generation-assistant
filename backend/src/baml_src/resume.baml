@@ -1,4 +1,3 @@
-// Define separate classes for nested structures with optional fields.
 class Experience {
   job_title string?
   company string?
@@ -41,7 +40,6 @@ class Language {
   proficiency string?
 }
 
-// Enhanced Resume class with all fields optional.
 class Resume {
   name string?
   email string?
@@ -49,20 +47,19 @@ class Resume {
   linkedin string?
   location string?
   summary string?
-  experience Experience[]? // Optional
-  education Education[]? // Optional
-  certifications string[]? // Optional
-  projects Project[]? // Optional
-  skills string[]? // Optional
-  languages Language[]? // Optional
-  achievements string[]? // Optional
-  publications Publication[]? // Optional
-  references Reference[]? // Optional
+  experience Experience[]?
+  education Education[]?
+  certifications string[]?
+  projects Project[]?
+  skills string[]?
+  languages Language[]?
+  achievements string[]?
+  publications Publication[]?
+  references Reference[]?
 }
 
-// Updated function to extract a comprehensive resume model.
 function ExtractResume(resume: string) -> Resume {
-  client "openai/gpt-4o" // Ensure OPENAI_API_KEY is set.
+  client "openai/gpt-4o"
   prompt #"
     Extract the following information from resume:
     - Personal details: name, email, phone, linkedin, location

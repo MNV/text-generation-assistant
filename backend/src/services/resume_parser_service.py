@@ -5,10 +5,11 @@ from pathlib import Path
 import aiofiles
 import docx
 import pypdf
-
 from baml_client.async_client import b
 from baml_client.types import Resume
 from fastapi import HTTPException
+
+from utils.text import normalize_whitespace
 
 
 class ResumeParserService:
@@ -45,7 +46,7 @@ class ResumeParserService:
                 f"Unsupported file type: {file_extension}. Only PDF, DOCX, and TXT are allowed."
             )
 
-        return await extract_method(file_content)
+        return normalize_whitespace(await extract_method(file_content))
 
     async def _extract_text_from_pdf(self, file_content: bytes) -> str:
         """Extract text from a PDF file."""

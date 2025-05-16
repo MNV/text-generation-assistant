@@ -4,6 +4,7 @@ import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import {Eye, FileText, Trash2} from 'lucide-react';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal.js';
+import LoadingOverlay from "../components/LoadingOverlay.js";
 
 import config from "../config.ts";
 import ResumePreview from "../components/ResumePreview.js";
@@ -148,6 +149,8 @@ export default function ResumesPage() {
                 onConfirm={handleConfirmDelete}
                 filename={targetResume?.filename || ''}
             />
+
+            {parsingId && <LoadingOverlay message="Parsing resume and extracting entities..."/>}
         </div>
     );
 }

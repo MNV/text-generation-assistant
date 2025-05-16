@@ -12,7 +12,7 @@ from schemas.recommendation import RecommendationRequest
 from services.vector_store_service import VectorStoreService
 
 
-FEW_SHOT_EXAMPLES_DIR = Path("./data/few_shot_letters/enrollment")
+FEW_SHOT_EXAMPLES_DIR = "./data/few_shot_letters/{recommendation_type}"
 
 
 class RecommendationService:
@@ -62,11 +62,14 @@ class RecommendationService:
             query="Key strengths, achievements, and professional background to recommend.",
             resume_id=str(principal_resume_id),
         )
+
         grantee_context = await self.vector_store_service.retrieve(
             query="Key achievements, skills, and potential for recommendation.",
             resume_id=str(grantee_resume_id),
         )
-        few_shot_examples = await self.load_few_shot_examples()
+        few_shot_examples = await self.load_few_shot_examples(
+            recommendation_type=recommendation_type
+        )
 
         return await b.GenerateRecommendationLetter(
             principal_facts=principal_facts,
@@ -82,9 +85,12 @@ class RecommendationService:
         )
 
     @staticmethod
-    async def load_few_shot_examples() -> str:
+    async def load_few_shot_examples(recommendation_type: str) -> str:
         examples = []
-        for file_path in sorted(FEW_SHOT_EXAMPLES_DIR.glob("*.txt")):
+        examples_dir = Path(
+            FEW_SHOT_EXAMPLES_DIR.format(recommendation_type=recommendation_type)
+        )
+        for file_path in sorted(examples_dir.glob("*.txt")):
             with open(file_path, "r", encoding="utf-8") as f:
                 examples.append(f.read().strip())
 

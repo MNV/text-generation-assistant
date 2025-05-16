@@ -64,7 +64,14 @@ function EntitySelectionPage() {
     return (
         <div className="p-6 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Select Entities for Research</h1>
-
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md mb-6 shadow-sm">
+                <p className="text-sm text-yellow-700">
+                    Select the most relevant skills, organizations, locations, and projects that you
+                    believe should be emphasized in the recommendation letter.
+                    These selected entities will be researched and used to enrich the generated content with
+                    personalized and context-aware information.
+                </p>
+            </div>
             {Object.entries(entities).map(([label, items]) => (
                 <div key={label} className="mb-4">
                     <h2 className="text-lg font-semibold mb-2">{label}</h2>

@@ -1,4 +1,3 @@
-// Define the function to generate a personalized recommendation letter
 function GenerateRecommendationLetter(
   principal_facts: Resume,
   grantee_facts: Resume,
@@ -11,7 +10,7 @@ function GenerateRecommendationLetter(
   few_shot_examples: string,
   extra: map<string, string>,
 ) -> string {
-  client "openai/gpt-4o"
+  client CustomGPT4o
   prompt #"
     You are a professional academic advisor writing a formal recommendation letter.
 
@@ -86,6 +85,7 @@ function GenerateRecommendationLetter(
 
     Translate all the Russian text to English (including names and titles).
     Do not include "Attachments" section, but only well formatted recommendation letter text.
+    Include current place of work if acceptable for the recommender.
 
     Response:
     {{ ctx.output_format }}

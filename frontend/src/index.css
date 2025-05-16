@@ -11,3 +11,12 @@ button:disabled {
 .btn-primary {
     @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed;
 }
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loader {
+  animation: spin 1s linear infinite;
+}

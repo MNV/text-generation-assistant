@@ -78,7 +78,19 @@ In `frontend/.env`:
 VITE_API_BASE_URL=http://0.0.0.0:8010/api/v1
 ```
 
-### 3. Start Docker containers
+### 3. Generate BAML
+
+```bash
+cd backend/src
+baml-cli generate
+```
+
+### 4. Add few shot examples of recommendation letters
+
+Examples should be placed in `./data/few_shot_letters/{recommendation_type}` as `.txt` files.
+`recommendation_type` can be one of: `enrollment`, `job`, `visa`.
+
+### 5. Start Docker containers
 
 ```bash
 docker compose up --build
