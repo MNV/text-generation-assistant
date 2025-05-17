@@ -22,7 +22,7 @@ RUN poetry install --no-interaction --no-ansi
 ADD . /app
 WORKDIR /app/src
 
-RUN poetry run baml-cli generate
+RUN baml-cli generate
 
 RUN useradd --create-home appuser && chown -R appuser:appuser /app
 USER appuser
