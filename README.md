@@ -92,6 +92,22 @@ docker compose up --build
 - Backend: [http://0.0.0.0:8010/api/v1](http://0.0.0.0:8010/api/v1)
 - Frontend: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
+### 5. Generate BAML
+
+```bash
+docker compose exec text-generation-assistant-app bash
+cd backend/src
+baml-cli generate
+```
+
+### 6. Apply migrations
+
+```bash
+docker compose exec text-generation-assistant-app bash
+cd backend/src
+alembic upgrade head
+```
+
 ## Usage
 
 1. Upload a resume on the **Upload** page.
