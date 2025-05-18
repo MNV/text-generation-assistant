@@ -156,7 +156,6 @@ export default function LettersPage() {
                             value={selectedResume}
                             onChange={handleResumeChange}
                             placeholder="Type to search resumes..."
-                            isClearable
                         />
                     </div>
                     {selectedResume && (
