@@ -148,7 +148,7 @@ export default function LettersPage() {
 
             <div>
                 <label className="block font-medium mb-2">Select Resume</label>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-1">
                         <Select
                             options={resumeOptions}
@@ -184,14 +184,14 @@ export default function LettersPage() {
                 <div className="space-y-4">
                     {letters.map(letter => (
                         <div key={letter.letter_id}
-                             className="border p-4 rounded shadow flex justify-between items-center">
+                             className="border p-4 rounded shadow flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                             <div>
                                 <p className="font-medium">{letter.filename}</p>
                                 <p className="text-sm text-gray-500">
                                     {letter.file_extension.toUpperCase()} • {formatDate(letter.created_at)}
                                 </p>
                             </div>
-                            <div className="flex space-x-3">
+                            <div className="flex gap-3 self-end sm:self-auto">
                                 <button
                                     onClick={() => downloadLetter(letter.letter_id, letter.filename, letter.file_extension)}
                                     className="text-gray-600 hover:text-blue-600"

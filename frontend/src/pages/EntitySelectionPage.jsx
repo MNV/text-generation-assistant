@@ -62,7 +62,7 @@ function EntitySelectionPage() {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-screen-lg mx-auto">
             <h1 className="text-2xl font-bold mb-6">Select Entities for Research</h1>
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md mb-6 shadow-sm">
                 <p className="text-sm text-yellow-700">
@@ -90,7 +90,7 @@ function EntitySelectionPage() {
                 </div>
             ))}
 
-            <div className="mt-6 flex gap-4">
+            <div className="mt-6 flex flex-col sm:flex-row gap-4">
                 <button
                     onClick={handleSubmit}
                     className="btn-primary"

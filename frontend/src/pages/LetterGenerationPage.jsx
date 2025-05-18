@@ -101,12 +101,12 @@ export default function LetterGenerationPage() {
     };
 
     return (
-        <div className="p-6 max-w-3xl mx-auto space-y-5">
+        <div className="px-4 sm:px-6 py-6 max-w-3xl mx-auto space-y-5">
             <h1 className="text-2xl font-bold">Generate Recommendation Letter</h1>
 
             <div>
                 <label className="block font-medium mb-1">Select Principal Resume</label>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-1">
                         <Select
                             options={resumeOptions}
@@ -131,7 +131,7 @@ export default function LetterGenerationPage() {
 
             <div>
                 <label className="block font-medium mb-1">Select Grantee Resume</label>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-1">
                         <Select
                             options={resumeOptions}

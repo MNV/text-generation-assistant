@@ -63,11 +63,11 @@ export default function UploadPage() {
     };
 
     return (
-        <div className="p-6 max-w-xl mx-auto">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-xl mx-auto">
             <h1 className="text-3xl font-bold mb-6 text-center">Upload Resume</h1>
 
             <div
-                className={`border-2 border-dashed p-10 rounded-lg text-center transition-all duration-300 cursor-pointer ${
+                className={`border-2 border-dashed px-4 py-10 sm:px-10 rounded-lg text-center transition-all duration-300 cursor-pointer ${
                     isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'
                 }`}
                 onDrop={handleDrop}
@@ -89,7 +89,7 @@ export default function UploadPage() {
             </div>
 
             {file && (
-                <div className="mt-4 text-sm text-gray-700">
+                <div className="mt-4 text-sm text-gray-700 break-words">
                     <p>📄 Selected: <span className="font-semibold">{file.name}</span></p>
                 </div>
             )}
@@ -103,7 +103,7 @@ export default function UploadPage() {
             </button>
 
             {message && (
-                <div className="mt-6 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded space-y-2">
+                <div className="mt-6 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded space-y-2 text-sm sm:text-base">
                     <p className="font-semibold">Upload successful!</p>
                     <p>
                         You can now continue working with this resume on the{' '}

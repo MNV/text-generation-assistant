@@ -85,7 +85,7 @@ export default function ResumesPage() {
     };
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
+        <div className="p-6 max-w-3xl mx-auto space-y-6">
             <h1 className="text-2xl font-bold mb-4">Research Resume</h1>
             {loading ? (
                 <p>Loading...</p>
@@ -95,14 +95,14 @@ export default function ResumesPage() {
                 <ul className="space-y-4">
                     {resumes.map((resume) => (
                         <li key={resume.file_id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition">
-                            <div className="flex justify-between items-center">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <p className="font-medium">{resume.filename}</p>
                                     <p className="text-sm text-gray-500">
                                         {resume.file_extension.toUpperCase()} • {formatDate(resume.created_at)}
                                     </p>
                                 </div>
-                                <div className="flex space-x-3">
+                                <div className="flex space-x-3 flex-shrink-0">
                                     <button
                                         onClick={() => handleParse(resume.file_id)}
                                         title="Parse & Research"
