@@ -44,8 +44,8 @@ export default function LetterGenerationPage() {
 
     const recommendationTypeOptions = [
         {value: 'job', label: 'Job'},
-        {value: 'academic', label: 'Academic'},
-        {value: 'grant', label: 'Grant'},
+        {value: 'enrollment', label: 'Enrollment'},
+        {value: 'visa', label: 'Visa'},
     ];
 
     const selectedRecommendationType = recommendationTypeOptions.find(
